@@ -42,11 +42,14 @@ for line in lines:
     if counter == 0:
         headers = re.sub(r'(\<(/?[^\>]+)\>)', ';', line)
         headers = re.findall(r'[А-Яа-яёЁ]+\s?', headers)
-        print(headers)
+        headers[3] = headers[3] + ' ' + headers[4]
+        headers.pop(4)
         counter += 1
         continue
     temp = re.sub(r'(\<(/?[^\>]+)\>)', ';', line)
     temp = re.sub(r'\([^)]*\)', '', temp)
+    temp = re.sub(r'[A-Za-z]', '', temp)
+    temp = temp[5:].strip()
     temp = re.sub(r'\;+', ';', temp)
     temp = re.sub(r'^;', '', temp)
     temp = re.sub(r';$', '', temp)
@@ -66,3 +69,20 @@ for line in lines:
     result_dct[country_name][headers[2]] = col3_val
     result_dct[country_name][headers[3]] = col4_val
     counter += 1
+output = open('data.csv', 'w')
+counter = 0
+for key in result_dct.keys():
+    if counter == 0:
+        output.write('Страна' + ';' + ';'.join(headers) + '\n')
+        counter += 1
+        continue
+    output.write(key + ';')
+    for i in range(0, 4):
+        output.write(result_dct[key][headers[i]] + ';')
+    output.write('\n')
+output.close()
+try:
+    target_country = input("Введите название страны: ")
+    print(result_dct[target_country])
+except KeyError:
+    print("Такой страны нет")
